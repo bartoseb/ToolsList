@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        repository.Initialize();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private void refreshList(){
         String filter = et_filter.getText().toString();
         items = repository.getToolsList(filter);
-        adapter.notifyDataSetChanged();
+        adapter.clear();
+        adapter.addAll(items);
     }
 }

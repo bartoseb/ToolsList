@@ -1,28 +1,68 @@
 package com.example.sebastian.toolslist;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ToolsRepository {
     private final Context context;
     private final String DB_PATH_KEY = "db_path";
-    private final String db_path;
+    private final ArrayList<String> emptyList;
+    private String db_path;
+    private SQLiteDatabase database;
 
     public ToolsRepository(Context context){
         this.context = context;
-        SharedPreferences prefs = context.getSharedPreferences("general_settings", Context.MODE_PRIVATE);
-        db_path = prefs.getString(DB_PATH_KEY, null);
+        this.emptyList = new ArrayList<String>(1);
+        this.emptyList.add("No records found");
     }
 
     public List<String> getToolsList(String filter){
-        if(db_path != null){
+        if(true){
+            Cursor cursor = null;
+            if(filter == null || filter.isEmpty()){
+                cursor = database.query("ToolItems",new String[]{"ToolName"}, null, null,null,null,"ToolName");
+            }else{
+                cursor = database.query("ToolItems",new String[]{"ToolName"}, "ToolName like ?", new String[]{ filter+"%"},null,null,"ToolName");
+            }
 
+            ArrayList<String> items = new ArrayList<String>();
+            if (cursor.moveToFirst()) {
 
+                while (cursor.isAfterLast() == false) {
+                    String toolName = cursor.getString(cursor.getColumnIndex("ToolName"));
+                    items.add(toolName);
+                    cursor.moveToNext();
+                }
+                cursor.close();
+                return items;
+            }
         }
 
-        return null;
+        return emptyList;
     }
 
+    public void Initialize() {
+        SharedPreferences prefs = context.getSharedPreferences("general_settings", Context.MODE_PRIVATE);
+        db_path = prefs.getString(DB_PATH_KEY, null);
+        File file = context.getDatabasePath("test.db").getAbsoluteFile();
+        database = SQLiteDatabase.openOrCreateDatabase(file, null);
+        database.execSQL("CREATE TABLE IF NOT EXISTS ToolItems(ToolName VARCHAR PRIMARY KEY);");
+        for(int i = 0; i< 10; i++){
+            ContentValues insertValues = new ContentValues();
+            insertValues.put("ToolName", i + "my name");
+            try{
+                database.insert("ToolItems", null, insertValues);
+            }
+            catch (Exception ex){
+            }
+
+        }
+    }
 }
