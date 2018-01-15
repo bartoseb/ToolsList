@@ -24,7 +24,7 @@ public class ToolsRepository {
     }
 
     public List<String> getToolsList(String filter){
-        if(true){
+        if(database!=null){
             Cursor cursor = null;
             if(filter == null || filter.isEmpty()){
                 cursor = database.query("ToolItems",new String[]{"ToolName"}, null, null,null,null,"ToolName");
@@ -51,18 +51,12 @@ public class ToolsRepository {
     public void Initialize() {
         SharedPreferences prefs = context.getSharedPreferences("general_settings", Context.MODE_PRIVATE);
         db_path = prefs.getString(DB_PATH_KEY, null);
-        File file = context.getDatabasePath("test.db").getAbsoluteFile();
-        database = SQLiteDatabase.openOrCreateDatabase(file, null);
-        database.execSQL("CREATE TABLE IF NOT EXISTS ToolItems(ToolName VARCHAR PRIMARY KEY);");
-        for(int i = 0; i< 10; i++){
-            ContentValues insertValues = new ContentValues();
-            insertValues.put("ToolName", i + "my name");
-            try{
-                database.insert("ToolItems", null, insertValues);
+        if(db_path != null){
+            File db_file = new File(db_path);
+            if(db_file.exists()){
+                database = SQLiteDatabase.openDatabase(db_path,null,SQLiteDatabase.OPEN_READONLY);
             }
-            catch (Exception ex){
-            }
-
         }
+
     }
 }
