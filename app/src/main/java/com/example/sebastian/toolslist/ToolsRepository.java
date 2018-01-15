@@ -29,7 +29,7 @@ public class ToolsRepository {
             if(filter == null || filter.isEmpty()){
                 cursor = database.query("ToolItems",new String[]{"ToolName"}, null, null,null,null,"ToolName");
             }else{
-                cursor = database.query("ToolItems",new String[]{"ToolName"}, "ToolName like ?", new String[]{ filter+"%"},null,null,"ToolName");
+                cursor = database.query("ToolItems",new String[]{"ToolName"}, "ToolName like ?", new String[]{ "%"+filter+"%"},null,null,"ToolName");
             }
 
             ArrayList<String> items = new ArrayList<String>();
